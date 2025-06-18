@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} TCA Software Solutions</title>
+    <link rel="icon" type="image/png"
+          href="{{ url_for('static', filename='logos/logo-corto.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/tailwind-config.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.x/dist/tailwind.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="bg-gray-50 font-sans flex h-screen overflow-hidden">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-toasts"
+             class="fixed top-5 right-5 z-50 space-y-3">
+          {% for category, message in messages %}
+            <div x-data="{ show: true }"
+                 x-show="show"
+                 x-transition.duration.300ms
+                 @click="show = false"
+                 class="cursor-pointer px-4 py-3 rounded shadow-lg text-white
+                   {% if category == 'error' %}bg-red-500
+                   {% elif category == 'success' %}bg-green-500
+                   {% elif category == 'warning' %}bg-yellow-500 text-gray-900
+                   {% else %}bg-blue-500{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <aside id="sidebar"
+           class="w-64 bg-primary text-white flex flex-col transition-all duration-300">
+        <div class="p-6 flex justify-center">
+            <img src="{{ url_for('static', filename='logos/tca-logo-blanco.png') }}"
+                 alt="TCA Software Solutions"
+                 class="h-11 logo-full">
+            <img src="{{ url_for('static', filename='logos/tca-logo-blanco-corto.png') }}"
+                 alt="TCA Software Solutions compacto"
+                 class="h-4 logo-mini hidden">
+        </div>
+        <nav class="flex-1 mt-8 flex flex-col justify-between">
+            <div>
+                <div class="space-y-2 px-4">
+                    <a href="{{ url_for('inicio') }}"
+                       class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all duration-200
+                              {% if page == 'inicio' %}bg-primaryLight text-white
+                              {% else %}hover:bg-primaryLight text-gray-200 hover:text-white{% endif %}">
+                        <div class="sidebar-icon transition-transform duration-200">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <span>Inicio</span>
+                    </a>
+                    <div class="space-y-1" id="analisis-group">
+                        <a href="{{ url_for('analisis') }}"
+                           id="analisis-toggle"
+                           class="sidebar-item flex items-center justify-between p-3 rounded-lg transition-all duration-200
+                                  {% if page in ['analisis', 'carga_de_datos', 'calidad_y_procesamiento', 'series_de_tiempo'] %}
+                                      bg-primaryLight text-white
+                                  {% else %}
+                                      hover:bg-primaryLight text-gray-200 hover:text-white
+                                  {% endif %}">
+                            <div class="flex items-center space-x-3">
+                                <div class="sidebar-icon transition-transform duration-200">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <span>Análisis</span>
+                            </div>
+                            <i class="fas fa-chevron-down transition-transform duration-200"></i>
+                        </a>
+                        <div id="analisis-submenu"
+                             class="ml-10 mt-1 space-y-1 border-l-2 border-primaryLight pl-3 hidden">
+                            <a href="{{ url_for('carga_de_datos') }}"
+                               class="sidebar-item flex items-center space-x-3 p-2 rounded-lg transition-all duration-200
+                                      {% if page == 'carga_de_datos' %}bg-primaryLight text-white
+                                      {% else %}text-gray-200 hover:bg-primaryLight hover:text-white{% endif %}">
+                                <i class="fas fa-database"></i>
+                                <span>Carga</span>
+                            </a>
+                            <a href="{{ url_for('calidad_y_procesamiento') }}"
+                               class="sidebar-item flex items-center space-x-3 p-2 rounded-lg transition-all duration-200
+                                      {% if page == 'calidad_y_procesamiento' %}bg-primaryLight text-white
+                                      {% else %}text-gray-200 hover:bg-primaryLight hover:text-white{% endif %}">
+                                <i class="fas fa-filter"></i>
+                                <span>Calidad</span>
+                            </a>
+                            <a href="{{ url_for('analisis') }}"
+                               class="sidebar-item flex items-center space-x-3 p-2 rounded-lg transition-all duration-200
+                                      {% if page == 'analisis' %}bg-primaryLight text-white
+                                      {% else %}text-gray-200 hover:bg-primaryLight hover:text-white{% endif %}">
+                                <i class="fas fa-wave-square"></i>
+                                <span>Análisis</span>
+                            </a>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('modelado') }}"
+                       class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all duration-200
+                              {% if page == 'modelado' %}bg-primaryLight text-white
+                              {% else %}hover:bg-primaryLight text-gray-200 hover:text-white{% endif %}">
+                        <div class="sidebar-icon transition-transform duration-200">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <span>Modelado&nbsp;con&nbsp;IA</span>
+                    </a>
+                    <a href="{{ url_for('dashboard') }}"
+                       class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all duration-200
+                              {% if page == 'dashboard' %}bg-primaryLight text-white
+                              {% else %}hover:bg-primaryLight text-gray-200 hover:text-white{% endif %}">
+                        <div class="sidebar-icon transition-transform duration-200">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="mt-8 px-4">
+                    <p class="text-xs uppercase tracking-wider text-gray-300 mb-2">Ayuda</p>
+                    <a href="{{ url_for('contacto') }}"
+                       class="sidebar-item flex items-center space-x-3 p-3 rounded-lg transition-all duration-200
+                              {% if page == 'contacto' %}bg-primaryLight text-white
+                              {% else %}hover:bg-primaryLight text-gray-200 hover:text-white{% endif %}">
+                        <div class="sidebar-icon transition-transform duration-200">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <span>Contacto</span>
+                    </a>
+                </div>
+            </div>
+            <div class="p-6 border-t border-primaryLight">
+                <div class="flex items-center space-x-3 admin-block">
+                    <div class="w-10 h-10 rounded-full bg-primaryLight flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="admin-details">
+                        <p class="font-medium">Administrador</p>
+                        <p class="text-xs text-gray-300">admin@tca-ss.com</p>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </aside>
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white shadow-sm py-4 px-6 flex items-center border-b border-gray-200">
+            <button id="toggle-btn"
+                    class="mr-4 p-2 rounded-lg text-primary hover:bg-gray-100 focus:outline-none transition-transform duration-300">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-gray-800">
+                {% block heading %}{% endblock %}
+            </h2>
+            <div class="ml-auto flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text"
+                           placeholder="Buscar..."
+                           class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                <div class="relative">
+                    <button class="p-2 rounded-full hover:bg-gray-100 relative">
+                        <i class="fas fa-bell text-gray-600 text-xl"></i>
+                        <span class="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                            3
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/tailwind-config.js') }}"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/inicio_charts.js') }}"></script>
+    {% endblock %}
+    <script>
+    (function () {
+        const KEY      = 'sidebarCollapsed';
+        const sidebar  = document.getElementById('sidebar');
+        const btn      = document.getElementById('toggle-btn');
+        sidebar.classList.add('no-anim');
+        const wasCollapsed = localStorage.getItem(KEY) === 'true';
+        if (wasCollapsed) {
+            sidebar.classList.add('collapsed');
+            btn.classList.add('rotate-180');
+        }
+        requestAnimationFrame(() => sidebar.classList.remove('no-anim'));
+        btn.addEventListener('click', () => {
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+            btn.classList.toggle('rotate-180', isCollapsed);
+            localStorage.setItem(KEY, isCollapsed);
+        });
+    })();
+    </script>
+    <script>
+    (function () {
+        const KEY       = 'analisisSubmenuOpen';
+        const toggle    = document.getElementById('analisis-toggle');
+        const submenu   = document.getElementById('analisis-submenu');
+        const chevron   = toggle.querySelector('.fa-chevron-down');
+        const initiallyOpen = localStorage.getItem(KEY) === 'true' ||
+                              {{ 'true' if page in ['carga_de_datos', 'calidad_y_procesamiento', 'analisis'] else 'false' }};
+        if (initiallyOpen) {
+            submenu.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+        }
+        toggle.addEventListener('click', (e) => {
+            if (e.target === toggle || e.target === chevron || e.target.closest('.fa-chevron-down')) {
+                e.preventDefault();
+                const isOpen = !submenu.classList.toggle('hidden');
+                chevron.classList.toggle('rotate-180', isOpen);
+                localStorage.setItem(KEY, isOpen);
+            }
+        });
+    })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
+</body>
+</html>

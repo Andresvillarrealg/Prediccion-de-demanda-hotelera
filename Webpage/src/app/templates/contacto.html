@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% set page = 'contacto' %}
+{% block title %}Contacto -{% endblock %}
+{% block heading %}Contáctanos{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto mt-6 space-y-8">
+  <div class="flex justify-center">
+    <img src="{{ url_for('static', filename='logos/logo.png') }}"
+         alt="Logo de TCA Software Solutions"
+         class="w-80 h-auto">
+  </div>
+  <p class="text-center text-gray-600">
+    ¿Tienes alguna duda o quieres colaborar? ¡Escríbenos y te responderemos a la brevedad!
+  </p>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Blas René Treviño Cuéllar -->
+    <div class="bg-white rounded-xl shadow-sm p-6 flex items-center space-x-4">
+      <img src="{{ url_for('static', filename='team/blas.jpg') }}"
+           alt="Blas René Treviño Cuéllar"
+           class="w-16 h-16 rounded-full object-cover">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800">Blas René Treviño Cuéllar</h3>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-briefcase mr-2"></i> Ingeniero de Datos
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-envelope mr-2"></i> a01177729@tec.mx
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-phone mr-2"></i>  +52 81 1266 7749
+        </p>
+      </div>
+    </div>
+    <!-- Andrés Villarreal González -->
+    <div class="bg-white rounded-xl shadow-sm p-6 flex items-center space-x-4">
+      <img src="{{ url_for('static', filename='team/andres.jpg') }}"
+           alt="Andrés Villarreal González"
+           class="w-16 h-16 rounded-full object-cover">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800">Andrés Villarreal González</h3>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-briefcase mr-2"></i> Cientifico de Datos
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-envelope mr-2"></i> a00833915@tec.mx
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-phone mr-2"></i> +52 833 311 1329
+        </p>
+      </div>
+    </div>
+    <!-- Rodrigo González Zermeño -->
+    <div class="bg-white rounded-xl shadow-sm p-6 flex items-center space-x-4">
+      <img src="{{ url_for('static', filename='team/rodrigo.jpg') }}"
+           alt="Rodrigo González Zermeño"
+           class="w-16 h-16 rounded-full object-cover">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800">Rodrigo González Zermeño</h3>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-briefcase mr-2"></i> Ingeniero MLOps
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-envelope mr-2"></i> a00572213@tec.mx
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-phone mr-2"></i> +52 477 786 6179
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="mt-6 flex justify-center flex-wrap gap-6">
+    <!-- Héctor Hibran Tapia Fernández -->
+    <div class="bg-white rounded-xl shadow-sm p-6 flex items-center space-x-4">
+      <img src="{{ url_for('static', filename='team/hibran.jpg') }}"
+           alt="Héctor Hibran Tapia Fernández"
+           class="w-16 h-16 rounded-full object-cover">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800">Héctor Hibran Tapia Fernández</h3>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-briefcase mr-2"></i> Desarrollador Full Stack
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-envelope mr-2"></i> a01661114@tec.mx
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-phone mr-2"></i> +52 56 1551 8463
+        </p>
+      </div>
+    </div>
+    <!-- David Antonio Figueroa Campos -->
+    <div class="bg-white rounded-xl shadow-sm p-6 flex items-center space-x-4">
+      <img src="{{ url_for('static', filename='team/david.jpg') }}"
+           alt="David Antonio Figueroa Campos"
+           class="w-16 h-16 rounded-full object-cover">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800">David Antonio Figueroa Campos</h3>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-briefcase mr-2"></i> Analista de Datos
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-envelope mr-2"></i> a01198034@tec.mx
+        </p>
+        <p class="text-sm text-gray-600 flex items-center">
+          <i class="fas fa-phone mr-2"></i> +52 81 1470 7021
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/inicio_charts.js') }}" defer></script>
+{% endblock %}

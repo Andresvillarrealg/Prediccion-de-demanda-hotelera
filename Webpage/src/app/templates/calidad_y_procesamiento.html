@@ -1,0 +1,473 @@
+{% extends 'base.html' %}
+{% set page = 'calidad_y_procesamiento' %}
+{% block title %}Calidad y Procesamiento -{% endblock %}
+{% block heading %}Análisis de Reservas{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <section id="introSection" class="bg-white rounded-xl shadow-md p-5 text-black">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-filter text-2xl text-primaryDark"></i>
+                <h2 class="text-2xl font-bold">2. Calidad y Procesamiento Inteligente de Datos</h2>
+            </div>
+            <button id="toggleDescBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-colors">
+                <i id="toggleDescIcon" class="fas fa-chevron-down text-primary"></i>
+            </button>
+        </div>
+        <div id="descContent" class="mt-4 space-y-2">
+            <p>En esta sección podrás:</p>
+            <ul class="list-disc list-inside space-y-1">
+                <li><i class="fas fa-eye text-primaryDark"></i> <strong>Preview dinámico:</strong> Mirar tus datos en tiempo real antes de procesar.</li>
+                <li><i class="fas fa-info-circle text-primaryDark"></i> <strong>Metadata interactiva:</strong> Pasar el cursor sobre cada columna para ver detalles adicionales.</li>
+                <li><i class="fas fa-bell text-primaryDark"></i> <strong>Alertas inteligentes:</strong> Recibir notificaciones sobre inconsistencias o valores faltantes.</li>
+            </ul>
+            <p class="mt-2"><i class="fas fa-download text-primaryDark"></i> <strong>Descarga final:</strong> En el último paso podrás descargar tu base limpia y lista para alimentar al modelo de IA.</p>
+        </div>
+    </section>
+    {% if preview_data %}
+    <section class="bg-white rounded-xl shadow-md p-5">
+        <div class="mb-3">
+            <h4 class="text-lg font-semibold text-gray-800">Preview de la Tabla de Reservaciones</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table id="previewTable" class="min-w-full bg-white border border-gray-200 text-sm">
+                <thead>
+                    <tr class="bg-black">
+                        {% for col in preview_columns %}
+                        <th class="px-2 py-1 text-left text-white">{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in preview_data %}
+                    <tr class="hover:bg-gray-50">
+                        {% for col in preview_columns %}
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">{{ row[col] }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+    {% if metadata %}
+    <section class="bg-white rounded-xl shadow-md p-5">
+        <div class="flex items-center justify-between mb-3">
+            <h4 class="text-lg font-semibold text-gray-800">Metadatos de la Tabla de Reservaciones</h4>
+            <button id="openMetadataBtn" class="text-gray-500 hover:text-gray-700" title="Ver en nueva pestaña">
+                <i class="fas fa-external-link-alt"></i>
+            </button>
+        </div>
+        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+            <table id="metadataTable" class="min-w-full bg-white border border-gray-200 text-sm">
+                <thead class="sticky top-0 bg-black">
+                    <tr>
+                        <th class="px-2 py-1 text-left text-white">Columna</th>
+                        <th class="px-2 py-1 text-left text-white">Tipo</th>
+                        <th class="px-2 py-1 text-left text-white">No nulos</th>
+                        <th class="px-2 py-1 text-left text-white">Nulos</th>
+                        <th class="px-2 py-1 text-left text-white">% Nulos</th>
+                        <th class="px-2 py-1 text-left text-white">Únicos</th>
+                        <th class="px-2 py-1 text-left text-white">Mín</th>
+                        <th class="px-2 py-1 text-left text-white">Máx</th>
+                        <th class="px-2 py-1 text-left text-white">Media</th>
+                        <th class="px-2 py-1 text-left text-white">Std</th>
+                        <th class="px-2 py-1 text-left text-white">Muestra</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in metadata %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">{{ row.column }}</td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">{{ row.dtype }}</td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">{{ row.non_null }}</td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">{{ row.nulls }}</td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">{{ row.pct_nulls }}%</td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">{{ row.unique }}</td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">
+                            {% if row.min is not none %}{{ row.min }}{% else %}&mdash;{% endif %}
+                        </td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">
+                            {% if row.max is not none %}{{ row.max }}{% else %}&mdash;{% endif %}
+                        </td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">
+                            {% if row.mean is not none %}{{ row.mean }}{% else %}&mdash;{% endif %}
+                        </td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">
+                            {% if row.std is not none %}{{ row.std }}{% else %}&mdash;{% endif %}
+                        </td>
+                        <td class="px-2 py-1 border-t border-gray-200 text-gray-800">
+                            {% if row.sample %}
+                                {{ row.sample | join(', ') }}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+    {% if quality_data %}
+    <div class="flex justify-center mt-8">
+        <button id="analyzeBtn"
+                class="bg-black text-white hover:bg-primaryDark font-semibold text-lg px-6 py-3 rounded-lg flex items-center gap-3 transition-colors shadow-lg animate-pulse">
+            <i class="fas fa-search text-white"></i>
+            <span>Revisar Calidad de la Base</span>
+        </button>
+    </div>
+    {% endif %}
+    {% if quality_data %}
+    <div id="resultsSection" class="hidden space-y-6">
+        <section class="bg-white rounded-xl shadow-md p-5">
+            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Estadísticas del Conjunto de Datos</h3>
+                <h3 class="text-xl font-bold text-gray-800 mt-3 lg:mt-0">Tipos de Variables</h3>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <div class="text-sm text-gray-600">Número de variables</div>
+                            <div class="text-xl font-bold text-gray-800">{{ quality_data.dataset_stats.variables }}</div>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <div class="text-sm text-gray-600">Número de observaciones</div>
+                            <div class="text-xl font-bold text-gray-800">{{ "{:,}".format(quality_data.dataset_stats.observations) }}</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                        <div class="flex justify-between">
+                            <div>
+                                <div class="text-sm text-gray-600">Celdas faltantes</div>
+                                <div class="text-xl font-bold text-gray-800">{{ quality_data.dataset_stats.missing_cells }}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-600">Celdas faltantes (%)</div>
+                                <div class="text-xl font-bold text-gray-800">{{ quality_data.dataset_stats.missing_percentage }}%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <div class="text-sm text-gray-600">Filas duplicadas</div>
+                            <div class="text-xl font-bold text-gray-800">{{ quality_data.dataset_stats.duplicate_rows }}</div>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <div class="text-sm text-gray-600">Filas duplicadas (%)</div>
+                            <div class="text-xl font-bold text-gray-800">{{ quality_data.dataset_stats.duplicate_percentage }}%</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <div class="text-sm text-gray-600">Tamaño total en memoria</div>
+                            <div class="text-xl font-bold text-gray-800">{{ quality_data.dataset_stats.memory_size }}</div>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <div class="text-sm text-gray-600">Tamaño promedio por registro</div>
+                            <div class="text-xl font-bold text-gray-800">{{ quality_data.dataset_stats.avg_record_size }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                        <div class="text-sm text-gray-600">Fecha/Hora</div>
+                        <div class="text-xl font-bold text-gray-800">{{ quality_data.variable_types.datetime }}</div>
+                    </div>
+                    <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                        <div class="text-sm text-gray-600">Numéricas</div>
+                        <div class="text-xl font-bold text-gray-800">{{ quality_data.variable_types.numeric }}</div>
+                    </div>
+                    <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                        <div class="text-sm text-gray-600">Categóricas</div>
+                        <div class="text-xl font-bold text-gray-800">{{ quality_data.variable_types.categorical }}</div>
+                    </div>
+                    <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                        <div class="text-sm text-gray-600">Texto</div>
+                        <div class="text-xl font-bold text-gray-800">{{ quality_data.variable_types.text }}</div>
+                    </div>
+                    <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                        <div class="text-sm text-gray-600">No soportado</div>
+                        <div class="text-xl font-bold text-gray-800">{{ quality_data.variable_types.unsupported }}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-white rounded-xl shadow-md p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Alertas</h3>
+                <span class="bg-gray-500 text-white px-2 py-1 rounded-full text-sm font-medium">
+                    {{ quality_data.alerts|length }}
+                </span>
+            </div>
+            <div class="space-y-2">
+                {% for alert in quality_data.alerts[:10] %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex-1">
+                        <span class="text-blue-600 font-medium">{{ alert.column }}</span>
+                        <span class="text-gray-700"> {{ alert.message }}</span>
+                    </div>
+                    <div class="ml-4">
+                        {% if alert.type == 'constant' %}
+                            <span class="bg-yellow-500 text-black px-2 py-1 rounded-full text-sm font-medium">Constante</span>
+                        {% elif alert.type == 'imbalance' %}
+                            <span class="bg-blue-500 text-white px-2 py-1 rounded-full text-sm font-medium">Desequilibrio</span>
+                        {% elif alert.type == 'skewed' %}
+                            <span class="bg-cyan-500 text-black px-2 py-1 rounded-full text-sm font-medium">Sesgado</span>
+                        {% elif alert.type == 'missing' %}
+                            <span class="bg-rose-500 text-white px-2 py-1 rounded-full text-sm font-medium">Faltante</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if quality_data.alerts|length > 10 %}
+            <div id="moreAlerts" class="space-y-2 mt-3 hidden">
+                {% for alert in quality_data.alerts[10:] %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex-1">
+                        <span class="text-blue-600 font-medium">{{ alert.column }}</span>
+                        <span class="text-gray-700"> {{ alert.message }}</span>
+                    </div>
+                    <div class="ml-4">
+                        {% if alert.type == 'uniform' %}
+                            <span class="bg-red-500 text-white px-2 py-1 rounded-full text-sm font-medium">Uniforme</span>
+                        {% elif alert.type == 'unique' %}
+                            <span class="bg-emerald-500 text-white px-2 py-1 rounded-full text-sm font-medium">Único</span>
+                        {% elif alert.type == 'unsupported' %}
+                            <span class="bg-purple-500 text-white px-2 py-1 rounded-full text-sm font-medium">No soportado</span>
+                        {% elif alert.type == 'zeros' %}
+                            <span class="bg-orange-500 text-white px-2 py-1 rounded-full text-sm font-medium">Ceros</span>
+                        {% elif alert.type == 'skewed' %}
+                            <span class="bg-cyan-500 text-white px-2 py-1 rounded-full text-sm font-medium">Sesgado</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mt-3 text-center">
+                <button id="toggleAlertsBtn" 
+                        class="text-primary hover:text-primaryDark font-medium px-3 py-1 rounded-lg border border-primary hover:bg-primary hover:text-white transition-colors flex items-center gap-2 mx-auto text-sm">
+                    <span id="toggleAlertsText">Ver más alertas ({{ quality_data.alerts|length - 10 }} restantes)</span>
+                    <i id="toggleAlertsIcon" class="fas fa-chevron-down text-primaryDark"></i>
+                </button>
+            </div>
+            {% endif %}
+            <div id="successSection" class="hidden bg-green-50 border border-green-200 rounded-lg p-5 mb-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-9 h-9 bg-green-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-green-800">¡Procesamiento Completado!</h4>
+                        <p class="text-green-600 text-sm">Todas las alertas de calidad han sido corregidas exitosamente.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-white rounded-lg p-3 border border-green-200">
+                        <div class="text-sm text-gray-600">Alertas corregidas</div>
+                        <div class="text-xl font-bold text-green-700" id="correctedCount">29</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 border border-green-200">
+                        <div class="text-sm text-gray-600">Registros procesados</div>
+                        <div class="text-xl font-bold text-green-700">203,002</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 border border-green-200">
+                        <div class="text-sm text-gray-600">Calidad final</div>
+                        <div class="text-xl font-bold text-green-700">95.8%</div>
+                    </div>
+                </div>
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex items-center gap-2 text-blue-800">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="font-medium text-sm">Dataset procesado listo para descarga</span>
+                    </div>
+                    <p class="text-blue-600 text-xs mt-1">El archivo final está optimizado y listo para el modelado de IA.</p>
+                    <div class="mt-3">
+                        <a href="{{ url_for('download_processed_dataset') }}" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm">
+                             <i class="fas fa-download text-white"></i>
+                             <span>Descargar Dataset Procesado</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-3">
+                <button id="improveQualityBtn" 
+                        class="bg-primaryDark hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm">
+                    <i class="fas fa-tools text-white"></i>
+                    <span>Mejorar Calidad de Base</span>
+                </button>
+                <a href="{{ url_for('download_quality_report') }}" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm">
+                     <i class="fas fa-download text-white"></i>
+                     <span>Reporte Detallado</span>
+                </a>
+            </div>
+        </section>
+    </div>
+    {% endif %}
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleDescBtn = document.getElementById('toggleDescBtn');
+    const descContent = document.getElementById('descContent');
+    const toggleDescIcon = document.getElementById('toggleDescIcon');
+    let descVisible = true;
+    toggleDescBtn.addEventListener('click', () => {
+        descVisible = !descVisible;
+        if (descVisible) {
+            descContent.classList.remove('hidden');
+            toggleDescIcon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        } else {
+            descContent.classList.add('hidden');
+            toggleDescIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        }
+    });
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const resultsSection = document.getElementById('resultsSection');
+    if (analyzeBtn && resultsSection) {
+        analyzeBtn.addEventListener('click', function() {
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analizando...';
+            analyzeBtn.disabled = true;
+            
+            setTimeout(function() {
+                analyzeBtn.style.display = 'none';
+                resultsSection.classList.remove('hidden');
+                resultsSection.classList.add('animate-fade-in');
+            }, 1500);
+        });
+    }
+    const toggleAlertsBtn = document.getElementById('toggleAlertsBtn');
+    const moreAlerts = document.getElementById('moreAlerts');
+    const toggleAlertsText = document.getElementById('toggleAlertsText');
+    const toggleAlertsIcon = document.getElementById('toggleAlertsIcon');
+    if (toggleAlertsBtn && moreAlerts) {
+        let isExpanded = false;
+        const totalAlerts = parseInt('{{ quality_data.alerts|length }}');
+        const hiddenCount = totalAlerts - 10;
+        toggleAlertsBtn.addEventListener('click', function() {
+            isExpanded = !isExpanded;
+            if (isExpanded) {
+                moreAlerts.classList.remove('hidden');
+                moreAlerts.classList.add('animate-fade-in');
+                toggleAlertsText.textContent = 'Ver menos alertas';
+                toggleAlertsIcon.classList.remove('fa-chevron-down');
+                toggleAlertsIcon.classList.add('fa-chevron-up');
+                setTimeout(function() {
+                    moreAlerts.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest' 
+                    });
+                }, 100);
+            } else {
+                moreAlerts.classList.add('hidden');
+                moreAlerts.classList.remove('animate-fade-in');
+                toggleAlertsText.textContent = `Ver más alertas (${hiddenCount} restantes)`;
+                toggleAlertsIcon.classList.remove('fa-chevron-up');
+                toggleAlertsIcon.classList.add('fa-chevron-down');
+                setTimeout(function() {
+                    toggleAlertsBtn.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest' 
+                    });
+                }, 100);
+            }
+        });
+    }
+    const openMetadataBtn = document.getElementById('openMetadataBtn');
+    if (openMetadataBtn) {
+        openMetadataBtn.addEventListener('click', function() {
+            const table = document.getElementById('metadataTable');
+            if (table) {
+                const newWin = window.open('', '_blank');
+                newWin.document.write(`
+                    <html>
+                        <head>
+                            <title>Metadatos de la Tabla de Reservaciones</title>
+                            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+                        </head>
+                        <body class="p-4 bg-gray-100">
+                            <h2 class="text-xl font-bold mb-4">Metadatos de la Tabla de Reservaciones</h2>
+                            ${table.outerHTML}
+                        </body>
+                    </html>
+                `);
+                newWin.document.close();
+            }
+        });
+    }
+    const improveQualityBtn = document.getElementById('improveQualityBtn');
+    const successSection = document.getElementById('successSection');
+    if (improveQualityBtn) {
+        improveQualityBtn.addEventListener('click', function() {
+            improveQualityBtn.disabled = true;
+            improveQualityBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando alertas...';
+            let progress = 0;
+            const progressInterval = setInterval(function() {
+                progress += 10;
+                improveQualityBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Procesando... ${progress}%`;
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(function() {
+                        const alertsSection = document.querySelector('.bg-white.rounded-xl.shadow-md:last-of-type');
+                        if (alertsSection) {
+                            alertsSection.style.display = 'none';
+                        }
+                        successSection.classList.remove('hidden');
+                        successSection.classList.add('animate-fade-in');
+                        improveQualityBtn.innerHTML = '<i class="fas fa-check"></i> Procesamiento Completado';
+                        improveQualityBtn.classList.remove('bg-primaryDark', 'hover:bg-red-700');
+                        improveQualityBtn.classList.add('bg-green-600', 'cursor-default');
+                        improveQualityBtn.disabled = true;
+                        setTimeout(function() {
+                            successSection.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                            });
+                        }, 200);
+                    }, 500);
+                }
+            }, 300);
+        });
+    }
+});
+</script>
+<style>
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+#moreAlerts {
+    transition: all 0.3s ease-in-out;
+}
+#moreAlerts.hidden {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+}
+#moreAlerts:not(.hidden) {
+    opacity: 1;
+    max-height: none;
+}
+#descContent.hidden {
+    display: none;
+}
+thead.sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+</style>
+{% endblock %}
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/inicio_charts.js') }}" defer></script>
+{% endblock %}

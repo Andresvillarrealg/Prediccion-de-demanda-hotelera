@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% set page = 'dashboard' %}
+{% block title %}Dashboard -{% endblock %}
+{% block heading %}Dashboard del Pronóstico de la Ocupación Hotelera{% endblock %}
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-4">
+  <div class="max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="bg-white p-6 rounded-2xl shadow-lg text-center border-2 border-transparent
+                  hover:border-red-500 hover:bg-red-50 transition transform hover:-translate-y-1
+                  duration-300 cursor-pointer">
+        <div class="text-3xl font-extrabold text-gray-800 mb-2" id="kpi-promedio">-</div>
+        <div class="text-sm text-gray-500">Ocupación promedio</div>
+      </div>
+      <div class="bg-white p-6 rounded-2xl shadow-lg text-center border-2 border-transparent
+                  hover:border-red-500 hover:bg-red-50 transition transform hover:-translate-y-1
+                  duration-300 cursor-pointer">
+        <div class="text-3xl font-extrabold text-gray-800 mb-2" id="kpi-max">-</div>
+        <div class="text-sm text-gray-500">Ocupación máxima</div>
+      </div>
+      <div class="bg-white p-6 rounded-2xl shadow-lg text-center border-2 border-transparent
+                  hover:border-red-500 hover:bg-red-50 transition transform hover:-translate-y-1
+                  duration-300 cursor-pointer">
+        <div class="text-3xl font-extrabold text-gray-800 mb-2" id="kpi-min">-</div>
+        <div class="text-sm text-gray-500">Ocupación mínima</div>
+      </div>
+      <div class="bg-white p-6 rounded-2xl shadow-lg text-center border-2 border-transparent
+                  hover:border-red-500 hover:bg-red-50 transition transform hover:-translate-y-1
+                  duration-300 cursor-pointer">
+        <div class="text-3xl font-extrabold text-gray-800 mb-2" id="kpi-pico">-</div>
+        <div class="text-sm text-gray-500">Pico de ocupación</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+      <div class="bg-white p-5 rounded-xl shadow-lg text-center border-2 border-transparent
+                  hover:border-red-500 hover:bg-red-50 transition transform hover:-translate-y-1
+                  duration-300 cursor-pointer">
+        <div class="text-2xl font-bold text-gray-800 mb-1" id="kpi-altos">-</div>
+        <div class="text-xs text-gray-500">Días alta demanda (&gt;900)</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow-lg text-center border-2 border-transparent
+                  hover:border-red-500 hover:bg-red-50 transition transform hover:-translate-y-1
+                  duration-300 cursor-pointer">
+        <div class="text-2xl font-bold text-gray-800 mb-1" id="kpi-finsemana">-</div>
+        <div class="text-xs text-gray-500">Promedio fin de semana</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow-lg text-center border-2 border-transparent
+                  hover:border-red-500 hover:bg-red-50 transition transform hover:-translate-y-1
+                  duration-300 cursor-pointer">
+        <div class="text-2xl font-bold text-gray-800 mb-1" id="kpi-festivos">-</div>
+        <div class="text-xs text-gray-500">Días festivos</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow-lg text-center border-2 border-transparent
+                  hover:border-red-500 hover:bg-red-50 transition transform hover:-translate-y-1
+                  duration-300 cursor-pointer">
+        <div class="text-2xl font-bold text-gray-800 mb-1" id="kpi-temporada">-</div>
+        <div class="text-xs text-gray-500">Días temporada alta</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-700">Ocupación diaria pronosticada</h3>
+          <div class="text-sm text-gray-400 italic">Últimos 30 días</div>
+        </div>
+        <canvas id="forecastChart" class="w-full h-64"></canvas>
+      </div>
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-700">Resumen de días clave</h3>
+          <div class="text-sm text-gray-400 italic">Comparativo</div>
+        </div>
+        <canvas id="diasClaveChart" class="w-full h-64"></canvas>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow mt-8">
+      <div class="font-semibold mb-2">Detalle de próximos 10 días</div>
+      <div class="overflow-x-auto">
+        <table
+          class="min-w-full text-xs text-left text-gray-700 border-collapse divide-y divide-gray-200"
+          id="tablaPronostico"
+        >
+          <thead>
+            <tr>
+              <th class="px-4 py-2">Fecha</th>
+              <th class="px-4 py-2">Ocupación</th>
+              <th class="px-4 py-2">Festivo</th>
+              <th class="px-4 py-2">Viernes/Sábado</th>
+              <th class="px-4 py-2">Temporada Alta</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/dashboard_charts.js') }}" defer></script>
+{% endblock %}

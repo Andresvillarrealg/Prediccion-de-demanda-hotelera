@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% set page = 'carga_de_datos' %}
+{% block title %}Carga de Datos -{% endblock %}
+{% block heading %}Análisis de Reservas{% endblock %}
+{% block content %}
+  <div class="max-w-4xl mx-auto">
+    <section class="bg-white rounded-2xl shadow-md p-6"> 
+      <div class="flex items-center gap-3">
+        <i class="fas fa-database text-2xl text-primaryDark"></i>
+        <h2 class="text-2xl font-bold">1. Carga de Datos</h2>
+      </div>
+      <p class="text-gray-600 mb-8">Sube tu archivo&nbsp;<code>.csv</code> o conéctate a Azure Blob para analizar tus reservas y generar gráficas clave.</p>
+      <form id="dataForm" action="{{ url_for('carga_de_datos') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <label class="group relative flex flex-col items-center justify-center bg-gray-50 hover:bg-primary/10 border-2 border-dashed border-primary/30 rounded-xl p-6 cursor-pointer transition">
+            <input type="radio" name="source" value="upload" class="absolute top-4 left-4 form-radio h-4 w-4 text-primary" checked>
+            <i class="fas fa-file-upload text-4xl text-primary mb-4"></i>
+            <span class="text-lg font-medium text-gray-800 group-hover:text-primary">Subir CSV</span>
+            <span class="text-xs text-gray-500 mt-1">Carga un&nbsp;.csv desde tu equipo</span>
+          </label>
+          <label class="group relative flex flex-col items-center justify-center bg-gray-50 hover:bg-primary/10 border-2 border-dashed border-primary/30 rounded-xl p-6 cursor-pointer transition">
+            <input type="radio" name="source" value="azure" class="absolute top-4 left-4 form-radio h-4 w-4 text-primary">
+            <i class="fab fa-microsoft text-4xl text-primary mb-4"></i>
+            <span class="text-lg font-medium text-gray-800 group-hover:text-primary">Azure Blob</span>
+            <span class="text-xs text-gray-500 mt-1">Selecciona una tabla del contenedor</span>
+          </label>
+        </div>
+        <div id="uploadSection" class="space-y-4">
+          <input type="file" name="csv_file" accept=".csv" class="w-full border rounded-lg px-4 py-3 file:mr-4 file:rounded-md file:border-0 file:bg-primary file:text-white" required>
+        </div>
+        <div id="azureSection" class="space-y-4 hidden">
+          <select name="azure_table" class="w-full border rounded-lg px-4 py-3 text-gray-700" required>
+            <option value="" disabled selected>Elige la tabla…</option>
+            <option value="ocupaciones">iar_Ocupaciones — Ocupaciones</option>
+            <option value="reservaciones">iar_Reservaciones — Reservaciones</option>
+            <option value="ingresos">iar_ingresos_diarios — Ingresos diarios</option>
+          </select>
+        </div>
+        <button type="submit"
+                class="bg-primary hover:bg-primaryDark text-white font-semibold px-6 py-3 rounded-lg w-full md:w-auto flex items-center justify-center gap-2">
+          <i class="fas fa-check-circle"></i>
+          <span>Confirmar</span>
+        </button>
+      </form>
+    </section>
+    {% if df_html %}
+    <section class="bg-white rounded-2xl shadow-md p-8 mt-10">
+      <h4 class="text-xl font-semibold text-gray-800 mb-4">
+        Tabla - {{ table_name }} - {{ filas_columnas }}
+      </h4>
+      <div class="w-full overflow-x-auto">
+        {{ df_html|safe }}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+{% endblock %}
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/inicio_charts.js') }}" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      const radios        = document.querySelectorAll('input[name="source"]');
+      const uploadSection = document.getElementById('uploadSection');
+      const azureSection  = document.getElementById('azureSection');
+      const fileInput     = uploadSection.querySelector('input[type="file"]');
+      const tableSelect   = azureSection.querySelector('select[name="azure_table"]');
+      const toggle = () => {
+        const upload = document.querySelector('input[name="source"]:checked').value === 'upload';
+        uploadSection.classList.toggle('hidden', !upload);
+        azureSection.classList.toggle('hidden', upload);
+        fileInput.required  = upload;
+        tableSelect.required = !upload;
+      };
+      radios.forEach(r => r.addEventListener('change', toggle));
+      toggle();
+    });
+  </script>
+{% endblock %}

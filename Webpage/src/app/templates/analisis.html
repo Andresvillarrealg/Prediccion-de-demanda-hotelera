@@ -1,0 +1,1095 @@
+{% extends 'base.html' %}
+{% set page = 'analisis' %}
+{% block title %}Análisis -{% endblock %}
+{% block heading %}Análisis de Reservas{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+    <div id="edaResultsSection" class="space-y-8 animate-fade-in">
+        <section class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="fas fa-wave-square text-2xl text-primaryDark"></i>
+                <h2 class="text-2xl font-bold">3. Análisis General</h2>
+            </div>
+            <div class="space-y-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl">
+                        <div class="text-sm opacity-90">Total Reservaciones</div>
+                        <div class="text-3xl font-bold" id="totalReservations">-</div>
+                        <div class="text-sm opacity-75 mt-1">En el período analizado</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl">
+                        <div class="text-sm opacity-90">Total Huéspedes</div>
+                        <div class="text-3xl font-bold" id="totalGuests">-</div>
+                        <div class="text-sm opacity-75 mt-1">Personas hospedadas</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-xl">
+                        <div class="text-sm opacity-90">Ocupación Promedio</div>
+                        <div class="text-3xl font-bold" id="avgOccupancy">-</div>
+                        <div class="text-sm opacity-75 mt-1">Porcentaje diario</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-xl">
+                        <div class="text-sm opacity-90">Tarifa Promedio</div>
+                        <div class="text-3xl font-bold" id="avgRate">-</div>
+                        <div class="text-sm opacity-75 mt-1">Por habitación</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-pink-500 to-pink-600 text-white p-6 rounded-xl">
+                        <div class="text-sm opacity-90">Estancia Promedio</div>
+                        <div class="text-3xl font-bold" id="avgLengthStay">-</div>
+                        <div class="text-sm opacity-75 mt-1">Días por reserva</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-4">Distribución de Reservas por Mes</h4>
+                    <div class="h-64">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-4">Tendencia Mensual de ALOS</h4>
+                    <div class="h-64">
+                        <canvas id="alosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-map text-green-600"></i>
+                Análisis de Estados Mexicanos
+            </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-4">Distribución por Estados (Top 10)</h4>
+                    <div class="h-80">
+                        <canvas id="estadosChart"></canvas>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <h5 class="font-medium text-gray-800 mb-2">Estado Principal</h5>
+                        <div class="text-2xl font-bold text-blue-600" id="estadoPrincipalSegment">-</div>
+                        <div class="text-sm text-gray-600" id="estadoPrincipalPercent">-</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <h5 class="font-medium text-gray-800 mb-2">Top 3 Estados</h5>
+                        <div class="text-2xl font-bold text-green-600" id="top3Concentracion">-</div>
+                        <div class="text-sm text-gray-600">Concentración</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <h5 class="font-medium text-gray-800 mb-2">Índice HHI</h5>
+                        <div class="text-2xl font-bold text-purple-600" id="indiceHHI">-</div>
+                        <div class="text-sm text-gray-600">Diversificación</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-chart-line text-purple-600"></i>
+                Análisis Temporal
+            </h3>
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h4 class="font-semibold text-gray-800 mb-4">Ocupación Diaria</h4>
+                <div class="h-80">
+                    <canvas id="dailyOccupancyChart"></canvas>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <div class="text-lg font-bold text-blue-600" id="weekendOccupancy">-</div>
+                    <div class="text-sm text-gray-600">Ocupación Fin de Semana</div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 text-center">
+                    <div class="text-lg font-bold text-green-600" id="weekdayOccupancy">-</div>
+                    <div class="text-sm text-gray-600">Ocupación Entre Semana</div>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4 text-center">
+                    <div class="text-lg font-bold text-purple-600" id="peakSeason">-</div>
+                    <div class="text-sm text-gray-600">Temporada Alta</div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-project-diagram text-red-600"></i>
+                Matriz de Correlaciones
+            </h3>
+            
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="h-96">
+                    <canvas id="correlationHeatmap"></canvas>
+                </div>
+            </div>
+        </section>
+        <section class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-cogs text-orange-600"></i>
+                Análisis Operativo
+            </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-4">Por Canal de Distribución</h4>
+                    <div class="h-48">
+                        <canvas id="channelChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-4">Por Tipo de Habitación</h4>
+                    <div class="h-48">
+                        <canvas id="roomTypeChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-4">Adelanto de Reserva</h4>
+                    <div class="h-48">
+                        <canvas id="advanceBookingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-lightbulb text-yellow-600"></i>
+                Hallazgos Clave
+            </h3>
+            <div id="keyFindings" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            </div>
+        </section>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar directamente los datos de EDA sin esperar botón
+    loadEdaData();
+
+    function loadEdaData() {
+        // Llamada AJAX al endpoint real
+        fetch('/api/eda/overview')
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Datos EDA cargados:', data);
+                
+                // Actualizar métricas generales
+                document.getElementById('totalReservations').textContent = data.general_metrics.total_reservaciones;
+                document.getElementById('totalGuests').textContent = data.general_metrics.total_huespedes;
+                document.getElementById('avgOccupancy').textContent = data.general_metrics.ocupacion_promedio;
+                document.getElementById('avgRate').textContent = data.general_metrics.tarifa_promedio;
+                document.getElementById('avgLengthStay').textContent = data.general_metrics.alos_promedio;
+                
+                // Actualizar métricas temporales
+                document.getElementById('weekendOccupancy').textContent = data.temporal_metrics.ocupacion_weekend;
+                document.getElementById('weekdayOccupancy').textContent = data.temporal_metrics.ocupacion_weekday;
+                document.getElementById('peakSeason').textContent = data.temporal_metrics.temporada_alta;
+                
+                // Generar gráficos con datos reales
+                createMonthlyChart(data.charts_data.reservas_mensuales);
+                createAlosChart(data.charts_data.alos_mensual);
+                createDailyOccupancyChart(data.charts_data.ocupacion_diaria);
+                
+                // Generar hallazgos automáticos
+                generateKeyFindings(data);
+                loadOperationalData();
+                loadCorrelationsData();
+                loadEstadosData(); // Nueva función para estados
+                
+            })
+            .catch(error => {
+                console.error('❌ Error cargando datos EDA:', error);
+                document.getElementById('totalReservations').textContent = 'Error';
+                document.getElementById('totalGuests').textContent = 'Error';
+                document.getElementById('avgOccupancy').textContent = 'Error';
+                document.getElementById('avgRate').textContent = 'Error';
+            });
+    }
+
+    // Nueva función para cargar datos de estados
+    function loadEstadosData() {
+        fetch('/api/eda/segmentation')
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Datos de estados cargados:', data);
+                
+                // Crear gráfico de estados
+                createEstadosChart(data.estados.distribuccion);
+                
+                // Actualizar métricas de estados
+                updateEstadosMetrics(data);
+                
+            })
+            .catch(error => {
+                console.error('❌ Error cargando datos de estados:', error);
+            });
+    }
+
+    // Función para crear gráfico de estados mexicanos
+    function createEstadosChart(data) {
+        const ctx = document.getElementById('estadosChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data).map(estado => {
+                    // Limpiar y acortar nombres para mejor visualización
+                    const estadoLimpio = estado.trim();
+                    return estadoLimpio.length > 15 ? estadoLimpio.substring(0, 15) + '...' : estadoLimpio;
+                }),
+                datasets: [{
+                    label: 'Reservas',
+                    data: Object.values(data),
+                    backgroundColor: 'rgba(5, 150, 105, 0.8)',
+                    borderColor: 'rgba(5, 150, 105, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de Reservas'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            font: { size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Función para actualizar métricas de estados
+
+    function updateEstadosMetrics(data) {
+        // Estado principal (mantener)
+        document.getElementById('estadoPrincipalSegment').textContent = 
+            data.metricas_principales.estado_principal.trim();
+        document.getElementById('estadoPrincipalPercent').textContent = 
+            data.metricas_principales.estado_principal_percent;
+    
+        // Top 3 Estados
+        document.getElementById('top3Concentracion').textContent = 
+            data.metricas_principales.top_3_concentracion;
+    
+        // Índice HHI
+        const hhi = parseFloat(data.metricas_principales.indice_hhi);
+        document.getElementById('indiceHHI').textContent = hhi.toFixed(3);
+    
+        // Interpretación del HHI
+        let interpretacionHHI = '';
+        if (hhi < 0.15) {
+            interpretacionHHI = 'Muy diversificado';
+        } else if (hhi < 0.25) {
+            interpretacionHHI = 'Diversificado';
+        } else if (hhi < 0.40) {
+            interpretacionHHI = 'Moderadamente concentrado';
+        } else {
+            interpretacionHHI = 'Muy concentrado';
+        }
+        document.getElementById('interpretacionHHI').textContent = interpretacionHHI;
+    
+        console.log('✅ Métricas de concentración actualizadas:', {
+            top3: data.metricas_principales.top_3_concentracion,
+            hhi: hhi.toFixed(3) + ' (' + interpretacionHHI + ')'
+        });
+    }
+
+    // Función para crear gráfico de reservas mensuales
+    function createMonthlyChart(data) {
+        const ctx = document.getElementById('monthlyChart').getContext('2d');
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data).map(mes => meses[parseInt(mes) - 1]),
+                datasets: [{
+                    label: 'Reservas',
+                    data: Object.values(data),
+                    backgroundColor: 'rgba(233, 53, 52, 0.8)',
+                    borderColor: 'rgba(233, 53, 52, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+
+    // En analisis.html, reemplazar createDailyOccupancyChart con esta versión SIN tarjetas
+
+    function createDailyOccupancyChart(data) {
+        // ============================================================================
+        // VALIDACIONES ESTRICTAS AL INICIO
+        // ============================================================================
+        
+        const canvas = document.getElementById('dailyOccupancyChart');
+        if (!canvas) {
+            console.error('❌ Canvas dailyOccupancyChart no encontrado');
+            return;
+        }
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            console.error('❌ No se pudo obtener contexto 2D del canvas');
+            return;
+        }
+        
+        if (!data || !Array.isArray(data) || data.length === 0) {
+            console.error('❌ Datos inválidos para el gráfico:', data);
+            return;
+        }
+        
+        console.log(`📊 Iniciando gráfico dual con ${data.length} puntos de datos`);
+        
+        // ============================================================================
+        // DECLARAR VARIABLES EN SCOPE CORRECTO
+        // ============================================================================
+        
+        let labelsCompletos = [];
+        let serieCompleta = [];
+        let serieMuestreada = [];
+        
+        // ============================================================================
+        // PROCESAMIENTO SEGURO DE DATOS
+        // ============================================================================
+        
+        try {
+            // Labels para serie completa (solo algunos para el eje X)
+            labelsCompletos = data.map((item, index) => {
+                if (!item || !item.fecha) return '';
+                
+                try {
+                    const fecha = new Date(item.fecha);
+                    if (isNaN(fecha.getTime())) return '';
+                    
+                    // Solo mostrar label cada 30 días
+                    if (index % 30 === 0) {
+                        return fecha.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
+                    }
+                    return '';
+                } catch (e) {
+                    console.warn('⚠️ Error procesando fecha:', item.fecha);
+                    return '';
+                }
+            });
+            
+            // Serie completa (todos los días)
+            serieCompleta = data.map(item => {
+                const personas = parseInt(item?.personas || 0);
+                return isNaN(personas) ? 0 : personas;
+            });
+            
+            // Serie muestreada (cada 7 días)
+            serieMuestreada = data.map((item, index) => {
+                if (index % 7 === 0) {
+                    const personas = parseInt(item?.personas || 0);
+                    return isNaN(personas) ? 0 : personas;
+                }
+                return null;
+            });
+            
+            console.log(`📈 Datos procesados: ${serieCompleta.length} completos, ${serieMuestreada.filter(v => v !== null).length} muestreados`);
+            
+        } catch (error) {
+            console.error('❌ Error procesando datos:', error);
+            // Usar datos vacíos como fallback
+            labelsCompletos = [];
+            serieCompleta = [];
+            serieMuestreada = [];
+            return;
+        }
+        
+        // ============================================================================
+        // CREAR GRÁFICO CON MANEJO DE ERRORES
+        // ============================================================================
+        
+        try {
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labelsCompletos,
+                    datasets: [
+                        {
+                            label: 'Ocupación Diaria (Todos los días)',
+                            data: serieCompleta,
+                            borderColor: 'rgba(147, 51, 234, 1)',
+                            backgroundColor: 'rgba(147, 51, 234, 0.15)',
+                            fill: true,
+                            tension: 0.1,
+                            pointRadius: 0,
+                            pointHoverRadius: 2,
+                            borderWidth: 2,
+                            order: 2
+                        },
+                        {
+                            label: 'Tendencia (cada 7 días)',
+                            data: serieMuestreada,
+                            segment: {
+                                borderColor: function(ctx) {
+                                    // Fecha de inicio de pandemia en México: 2020-03-11
+                                    const fechaPandemia = new Date('2020-03-11');
+                                    
+                                    // Obtener fechas de los puntos actuales
+                                    const puntoActual = ctx.p0DataIndex;
+                                    const fechaActual = new Date(data[puntoActual]?.fecha);
+                                    
+                                    // Cambiar color según la fecha
+                                    if (fechaActual >= fechaPandemia) {
+                                        return 'rgba(34, 197, 94, 1)';      // Verde para pandemia
+                                    } else {
+                                        return 'rgba(59, 130, 246, 1)';      // Rojo para pre-pandemia
+                                    }
+                                }
+                            },
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: function(context) {
+                                const fechaPandemia = new Date('2020-03-11');
+                                const puntoActual = context.dataIndex;
+                                
+                                // Verificar que tenemos datos válidos
+                                if (!data[puntoActual] || !data[puntoActual].fecha) {
+                                    return 'rgba(59, 130, 246, 0)'; // Fallback rojo transparente
+                                }
+                                
+                                const fechaActual = new Date(data[puntoActual].fecha);
+                                
+                                if (fechaActual >= fechaPandemia) {
+                                    return 'rgba(34, 197, 94, 0)';              // Verde transparente para pandemia
+                                } else {
+                                    return 'rgba(59, 130, 246, 0)';              // Rojo transparente para pre-pandemia
+                                }
+                            },
+                            pointBorderColor: function(context) {
+                                const fechaPandemia = new Date('2020-03-11');
+                                const puntoActual = context.dataIndex;
+                                
+                                // Verificar que tenemos datos válidos
+                                if (!data[puntoActual] || !data[puntoActual].fecha) {
+                                    return 'rgba(59, 130, 246, 1)'; // Fallback rojo sólido
+                                }
+                                
+                                const fechaActual = new Date(data[puntoActual].fecha);
+                                
+                                if (fechaActual >= fechaPandemia) {
+                                    return 'rgba(34, 197, 94, 1)';              // Verde sólido para pandemia
+                                } else {
+                                    return 'rgba(59, 130, 246, 1)';              // Rojo sólido para pre-pandemia
+                                }
+                            },
+                            pointBorderWidth: 2,
+                            borderWidth: 3,
+                            order: 1,
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            filter: function(tooltipItem) {
+                                return tooltipItem.parsed.y !== null;
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(168, 85, 247, 1)',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    try {
+                                        const index = tooltipItems[0]?.dataIndex;
+                                        if (index !== undefined && data[index]?.fecha) {
+                                            const fecha = new Date(data[index].fecha);
+                                            if (!isNaN(fecha.getTime())) {
+                                                return fecha.toLocaleDateString('es-MX', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                });
+                                            }
+                                        }
+                                        return 'Fecha no disponible';
+                                    } catch (e) {
+                                        return 'Error en fecha';
+                                    }
+                                },
+                                label: function(context) {
+                                    try {
+                                        if (context.parsed.y === null) return null;
+                                        
+                                        const datasetLabel = context.dataset.label || 'Datos';
+                                        const value = context.parsed.y;
+                                        return `${datasetLabel}: ${value.toLocaleString()} huéspedes`;
+                                    } catch (e) {
+                                        return 'Error en datos';
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Período (Feb 2019 - Dic 2021)',
+                                font: { size: 14, weight: 'bold' }
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                maxTicksLimit: 12,
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                color: 'rgba(156, 163, 175, 0.2)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Número de Huéspedes',
+                                font: { size: 14, weight: 'bold' }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    try {
+                                        if (value >= 1000) {
+                                            return (value / 1000).toFixed(1) + 'K';
+                                        }
+                                        return value.toLocaleString();
+                                    } catch (e) {
+                                        return value;
+                                    }
+                                },
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                color: 'rgba(156, 163, 175, 0.2)'
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 800
+                    }
+                }
+            });
+            
+            console.log('✅ Gráfico dual creado exitosamente (sin tarjetas estadísticas)');
+            
+        } catch (error) {
+            console.error('❌ Error crítico creando gráfico:', error);
+            
+            // Mostrar mensaje de error en el canvas
+            try {
+                ctx.fillStyle = '#ef4444';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Error cargando gráfico', canvas.width / 2, canvas.height / 2);
+            } catch (e) {
+                console.error('❌ No se pudo mostrar mensaje de error');
+            }
+            return;
+        }
+        
+        // ============================================================================
+        // LIMPIAR TARJETAS EXISTENTES (SI LAS HAY)
+        // ============================================================================
+        
+        try {
+            const chartContainer = canvas.parentElement;
+            if (chartContainer) {
+                // Remover cualquier información estadística previa
+                const existingInfo = chartContainer.querySelector('.chart-dual-info');
+                if (existingInfo) {
+                    existingInfo.remove();
+                    console.log('🧹 Tarjetas estadísticas removidas');
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ Error limpiando tarjetas:', error);
+        }
+        
+        // ============================================================================
+        // FIN - NO SE AGREGAN TARJETAS ESTADÍSTICAS
+        // ============================================================================
+    }
+
+    
+    // Función para generar hallazgos automáticos
+    function generateKeyFindings(data) {
+        const findingsContainer = document.getElementById('keyFindings');
+        const findings = [];
+        
+        // Análisis de estacionalidad
+        const reservasValues = Object.values(data.charts_data.reservas_mensuales);
+        const maxMonth = Object.keys(data.charts_data.reservas_mensuales)[reservasValues.indexOf(Math.max(...reservasValues))];
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        
+        findings.push({
+            icon: 'fas fa-calendar-alt',
+            color: 'blue',
+            title: 'Pico de Reservas',
+            description: `${meses[parseInt(maxMonth) - 1]} es el mes con más reservas (${Math.max(...reservasValues).toLocaleString()})`
+        });
+        
+        // Análisis de fin de semana
+        const weekendOcc = parseFloat(data.temporal_metrics.ocupacion_weekend.replace('%', ''));
+        const weekdayOcc = parseFloat(data.temporal_metrics.ocupacion_weekday.replace('%', ''));
+        const diff = weekendOcc - weekdayOcc;
+        
+        findings.push({
+            icon: 'fas fa-chart-line',
+            color: 'purple',
+            title: 'Patrón Semanal',
+            description: `Los fines de semana tienen ${diff.toFixed(1)}% más ocupación que los días laborales`
+        });
+        
+        // Análisis de adelanto
+        findings.push({
+            icon: 'fas fa-clock',
+            color: 'orange',
+            title: 'Tiempo de Anticipación',
+            description: `Los huéspedes reservan con ${data.operational_metrics.adelanto_promedio} días de anticipación en promedio`
+        });
+
+        // Insight de estancia promedio
+        findings.push({
+            icon: 'fas fa-bed',
+            color: 'red',
+            title: 'Estancia Promedio',
+            description: 'Los huéspedes se quedan 3 días en promedio - ideal para paquetes de fin de semana'
+        });
+        
+        // Renderizar hallazgos
+        findingsContainer.innerHTML = findings.map(finding => `
+            <div class="bg-${finding.color}-50 border border-${finding.color}-200 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 bg-${finding.color}-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="${finding.icon} text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-${finding.color}-800">${finding.title}</h4>
+                        <p class="text-${finding.color}-600 text-sm mt-1">${finding.description}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Función para cargar datos operativos
+    function loadOperationalData() {
+        fetch('/api/eda/operational')
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Datos operativos cargados:', data);
+                createChannelChart(data.canales.distribuccion);
+                createRoomTypeChart(data.tipos_habitacion.distribuccion);
+                createAdvanceBookingChart(data.adelanto_reserva.histograma);
+            })
+            .catch(error => {
+                console.error('❌ Error cargando datos operativos:', error);
+            });
+    }
+
+    // Función para crear gráfico de canales
+    function createChannelChart(data) {
+        const ctx = document.getElementById('channelChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    data: Object.values(data),
+                    backgroundColor: [
+                        'rgba(249, 115, 22, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(168, 85, 247, 0.8)',
+                        'rgba(236, 72, 153, 0.8)',
+                        'rgba(14, 165, 233, 0.8)',
+                        'rgba(132, 204, 22, 0.8)',
+                        'rgba(251, 191, 36, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(156, 163, 175, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Función para crear gráfico de tipos de habitación
+    function createRoomTypeChart(data) {
+        const ctx = document.getElementById('roomTypeChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data).map(tipo => {
+                    return tipo.length > 15 ? tipo.substring(0, 15) + '...' : tipo;
+                }),
+                datasets: [{
+                    label: 'Reservas',
+                    data: Object.values(data),
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: 'rgba(34, 197, 94, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Función para crear gráfico de adelanto de reserva
+    function createAdvanceBookingChart(data) {
+        const ctx = document.getElementById('advanceBookingChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    label: 'Reservas',
+                    data: Object.values(data),
+                    backgroundColor: 'rgba(168, 85, 247, 0.8)',
+                    borderColor: 'rgba(168, 85, 247, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Función principal para cargar datos de heatmap
+    function loadCorrelationsData() {
+        fetch('/api/eda/correlations')
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Datos de heatmap cargados:', data);
+                createReservationsHeatmap(data.heatmap_data, data.labels, data.statistics);
+                displayHeatmapInsights(data.statistics, data.insights);
+            })
+            .catch(error => {
+                console.error('❌ Error cargando datos de heatmap:', error);
+            });
+    }
+
+
+    // Función para crear el heatmap de reservas
+    function createReservationsHeatmap(heatmapData, labels, statistics) {
+        const ctx = document.getElementById('correlationHeatmap').getContext('2d');
+        
+        // Destruir gráfico previo si existe
+        if (window.heatmapChart) {
+            window.heatmapChart.destroy();
+        }
+        
+        // Preparar datos para Chart.js
+        const chartData = heatmapData.map(point => ({
+            x: point.x,
+            y: point.y,
+            v: point.v
+        }));
+        
+        // Crear gradiente de colores basado en los valores
+        const maxValue = statistics.max_personas;
+        const minValue = statistics.min_personas;
+        
+        function getColorForValue(value) {
+            // Normalizar valor entre 0 y 1
+            const normalized = (value - minValue) / (maxValue - minValue);
+            
+            if (normalized < 0.2) return 'rgba(59, 7, 100, 0.9)';      // Púrpura muy oscuro
+            if (normalized < 0.4) return 'rgba(76, 29, 149, 0.9)';     // Púrpura oscuro
+            if (normalized < 0.6) return 'rgba(109, 40, 217, 0.9)';    // Púrpura medio
+            if (normalized < 0.8) return 'rgba(147, 197, 253, 0.9)';   // Azul claro
+            return 'rgba(254, 240, 138, 0.9)';                         // Amarillo
+        }
+        
+        // Crear datasets para cada celda del heatmap
+        const datasets = chartData.map((point, index) => ({
+            label: `${labels.dias[point.y]} - ${labels.meses[point.x]}`,
+            data: [point],
+            backgroundColor: getColorForValue(point.v),
+            borderColor: 'rgba(255, 255, 255, 0.8)',
+            borderWidth: 1,
+            pointRadius: 15,
+            showLine: false
+        }));
+        
+        window.heatmapChart = new Chart(ctx, {
+            type: 'scatter',
+            data: { datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        callbacks: {
+                            title: function(context) {
+                                const point = context[0];
+                                const dia = labels.dias[point.parsed.y];
+                                const mes = labels.meses[point.parsed.x];
+                                return `${dia} - ${mes}`;
+                            },
+                            label: function(context) {
+                                const valor = context.raw.v;
+                                const pct = ((valor / statistics.total_personas_analizadas) * 100).toFixed(1);
+                                return [
+                                    `Huéspedes: ${valor.toLocaleString()}`,
+                                    `Porcentaje: ${pct}%`
+                                ];
+                            },
+                            afterLabel: function(context) {
+                                const valor = context.raw.v;
+                                if (valor === statistics.max_personas) return '🔥 Máximo';
+                                if (valor === statistics.min_personas) return '❄️ Mínimo';
+                                if (valor > statistics.promedio_personas * 1.5) return '📈 Alto';
+                                if (valor < statistics.promedio_personas * 0.5) return '📉 Bajo';
+                                return '';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        min: -0.5,
+                        max: 11.5,
+                        title: {
+                            display: true,
+                            text: 'Mes',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return labels.meses[Math.round(value)] || '';
+                            },
+                            font: { size: 11 }
+                        },
+                        grid: { display: false }
+                    },
+                    y: {
+                        type: 'linear',
+                        min: -0.5,
+                        max: 6.5,
+                        title: {
+                            display: true,
+                            text: 'Día de Semana',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return labels.dias[Math.round(value)] || '';
+                            },
+                            font: { size: 11 }
+                        },
+                        grid: { display: false }
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: function(context) {
+                            const valor = context.raw.v;
+                            const normalized = (valor - minValue) / (maxValue - minValue);
+                            return Math.max(8, normalized * 25);
+                        }
+                    }
+                }
+            }
+        });
+        console.log('✅ Heatmap de reservas creado exitosamente');
+    }
+    function displayHeatmapInsights(statistics, insights) {
+        console.log('📊 Estadísticas del heatmap:', statistics);
+        console.log('💡 Insights:', insights);
+        const heatmapSection = document.querySelector('#correlationHeatmap').closest('section');
+        const existingDesc = heatmapSection.querySelector('.heatmap-description');
+        if (existingDesc) {
+            existingDesc.remove();
+        }
+        const description = document.createElement('div');
+        description.className = 'heatmap-description mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg';
+        description.innerHTML = `
+            <h5 class="font-semibold text-purple-800 mb-3">📊 Patrones de Ocupación Identificados:</h5>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div class="bg-white p-3 rounded border">
+                    <div class="font-medium text-purple-700">🔥 Pico de Ocupación</div>
+                    <div class="text-purple-600">${statistics.punto_max.dia} en ${statistics.punto_max.mes}</div>
+                    <div class="text-xs text-gray-500">${statistics.punto_max.personas.toLocaleString()} huéspedes</div>
+                </div>
+                <div class="bg-white p-3 rounded border">
+                    <div class="font-medium text-purple-700">📅 Día Más Ocupado</div>
+                    <div class="text-purple-600">${statistics.dia_mas_ocupado}</div>
+                    <div class="text-xs text-gray-500">A lo largo del año</div>
+                </div>
+                <div class="bg-white p-3 rounded border">
+                    <div class="font-medium text-purple-700">🗓️ Mes Más Ocupado</div>
+                    <div class="text-purple-600">${statistics.mes_mas_ocupado}</div>
+                    <div class="text-xs text-gray-500">Todos los días</div>
+                </div>
+            </div>
+            <p class="text-xs text-purple-600 mt-3">
+                💡 Los colores van de púrpura oscuro (menor ocupación) a amarillo (mayor ocupación). 
+                Total de huéspedes analizados: ${statistics.total_personas_analizadas.toLocaleString()}
+            </p>
+        `;
+        heatmapSection.appendChild(description);
+    }
+    function createAlosChart(data) {
+        const ctx = document.getElementById('alosChart').getContext('2d');
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Object.keys(data).map(mes => meses[parseInt(mes) - 1]),
+                datasets: [{
+                    label: 'ALOS (días)',
+                    data: Object.values(data),
+                    borderColor: 'rgba(168, 85, 247, 1)',
+                    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(168, 85, 247, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Días promedio'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Mes'
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+<style>
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/inicio_charts.js') }}" defer></script>
+{% endblock %}

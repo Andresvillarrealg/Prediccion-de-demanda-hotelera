@@ -1,0 +1,411 @@
+{% extends 'base.html' %}
+{% set page = 'modelado' %}
+{% block title %}Modelado con IA –{% endblock %}
+{% block heading %}Modelado con Inteligencia Artificial{% endblock %}
+{% block content %}
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300 mb-8">
+      <div class="flex items-center mb-6">
+        <div class="bg-gradient-to-br from-primaryDark to-primaryDark text-white p-3 rounded-full mr-4">
+          <i class="fas fa-robot text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-primary">Modelo LightGBM de Ocupación Hotelera</h2>
+      </div>
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-8 mb-8">
+        <div class="relative h-96">
+          <canvas id="ocupancyChart"></canvas>
+        </div>
+      </div>
+      <div class="space-y-6 text-primaryLight">
+        <p>
+          Nuestro modelo <span class="font-semibold text-primary">LightGBM</span> está especialmente 
+          entrenado para pronosticar la ocupación diaria de un hotel usando datos históricos.
+          Diseñado para brindar predicciones de alta precisión, incorpora tanto patrones 
+          temporales como variables de calendario y feriados.
+        </p>
+        <div class="bg-primaryLight bg-opacity-10 border-l-4 border-primary p-4 rounded-xl">
+          <h3 class="font-bold text-primary mb-2">¿Cómo Funciona?</h3>
+          <p class="text-primaryLight">
+            Analiza la ocupación de <strong>hace 1, 7 y 14 días</strong>, el promedio móvil de la última semana y 
+            características de calendario (día de la semana, mes, temporada alta, días feriados en México, viernes/sábado, etapa de pandemia) 
+            para generar un pronóstico fiable.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex items-start text-primaryLight">
+            <i class="fas fa-history text-primaryDark mt-1 mr-2"></i>
+            <div>
+              <h4 class="font-semibold text-primary">Autoregresión</h4>
+              <p class="text-sm text-primaryLight">Incluye ocupación de ayer para captar cambios inmediatos</p>
+            </div>
+          </div>
+          <div class="flex items-start text-primaryLight">
+            <i class="fas fa-calendar-alt text-primaryDark mt-1 mr-2"></i>
+            <div>
+              <h4 class="font-semibold text-primary">Ciclos Temporales</h4>
+              <p class="text-sm text-primaryLight">Codifica día de semana y mes con seno y coseno</p>
+            </div>
+          </div>
+          <div class="flex items-start text-primaryLight">
+            <i class="fas fa-umbrella-beach text-primaryDark mt-1 mr-2"></i>
+            <div>
+              <h4 class="font-semibold text-primary">Temporada y Feriados</h4>
+              <p class="text-sm text-primaryLight">Etiqueta junio/julio/noviembre y festivos MX automáticamente</p>
+            </div>
+          </div>
+          <div class="flex items-start text-primaryLight">
+            <i class="fas fa-virus text-primaryDark mt-1 mr-2"></i>
+            <div>
+              <h4 class="font-semibold text-primary">Contexto de Pandemia</h4>
+              <p class="text-sm text-primaryLight">Detecta si la fecha cae en etapa COVID (desde marzo 2020)</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-primaryLight bg-opacity-10 p-4 rounded-xl border border-primaryLight">
+          <h4 class="font-bold text-primary mb-1">Cobertura de Datos:</h4>
+          <p class="text-sm text-primaryLight">
+            Entrenado con información <span class="font-medium">febrero 2019 – agosto 2020</span>, 
+            diseñado para prever <span class="font-medium">los primeros 30 días después del periodo de prueba (predicho).</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="cardsContainer" class="grid grid-cols-1 lg:grid-cols-1 justify-items-center gap-6 max-w-8xl mx-auto mt-8">
+      <div id="predictCard" class="bg-white rounded-2xl p-12 model-card relative">
+        <div class="flex items-center mb-4">
+          <div class="bg-gradient-to-br from-primaryDark to-primaryDark text-white p-3 rounded-full mr-4">
+            <i class="fas fa-chart-line text-2xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-primary">
+            Herramienta de Predicción
+          </h2>
+        </div>
+        <p class="text-primaryLight mb-6">
+          Ingresa la fecha y los datos históricos de ocupación para obtener una posible predicción.
+        </p>
+        <form id="predict-form" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="fecha" class="block text-sm font-medium text-primary mb-1">Fecha de predicción</label>
+              <input
+                type="date"
+                id="fecha"
+                name="fecha"
+                class="w-full px-4 py-3 rounded-lg border border-primaryLight focus:border-brand focus:ring-1 focus:ring-brand input-highlight"
+                min="2019-02-01"
+                max="2021-01-31"
+                required
+              />
+            </div>
+            <div>
+              <label for="lag_1" class="block text-sm font-medium text-primary mb-1"># Personas (Ayer)</label>
+              <input
+                type="number"
+                min="0"
+                id="lag_1"
+                name="lag_1"
+                step="1"
+                class="w-full px-4 py-3 rounded-lg border border-primaryLight focus:border-brand focus:ring-1 focus:ring-brand input-highlight"
+                placeholder="Ej. 48"
+                required
+              />
+            </div>
+            <div>
+              <label for="lag_7" class="block text-sm font-medium text-primary mb-1"># Personas (Hace 7 días)</label>
+              <input
+                type="number"
+                min="0"
+                id="lag_7"
+                name="lag_7"
+                step="1"
+                class="w-full px-4 py-3 rounded-lg border border-primaryLight focus:border-brand focus:ring-1 focus:ring-brand input-highlight"
+                placeholder="Ej. 52"
+                required
+              />
+            </div>
+            <div>
+              <label for="lag_14" class="block text-sm font-medium text-primary mb-1"># Personas (Hace 14 días)</label>
+              <input
+                type="number"
+                min="0"
+                id="lag_14"
+                name="lag_14"
+                step="1"
+                class="w-full px-4 py-3 rounded-lg border border-primaryLight focus:border-brand focus:ring-1 focus:ring-brand input-highlight"
+                placeholder="Ej. 45"
+                required
+              />
+            </div>
+            <div class="md:col-span-2">
+              <label for="rolling_mean_7" class="block text-sm font-medium text-primary mb-1">Promedio (Últimos 7 días)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                id="rolling_mean_7"
+                name="rolling_mean_7"
+                class="w-full px-4 py-3 rounded-lg border border-primaryLight focus:border-brand focus:ring-1 focus:ring-brand input-highlight"
+                placeholder="Ej. 50.3"
+                required
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-brand hover:bg-brandDark text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center"
+          >
+            <i class="fas fa-calculator mr-2"></i> Calcular Predicción
+          </button>
+        </form>
+      </div>
+      <div id="resultContainer" class="hidden bg-white rounded-2xl p-12 model-card relative">
+        <div class="flex items-center mb-4">
+          <div class="bg-gradient-to-br from-primaryDark to-primaryDark text-white p-3 rounded-full mr-4">
+            <i class="fas fa-robot text-2xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-primary">
+            Resultado de la Predicción
+          </h2>
+        </div>
+        <div class="space-y-4">
+          <div class="flex items-center">
+            <div class="bg-blue-100 p-2 rounded-full mr-3">
+              <i class="fas fa-calendar-day text-blue-600"></i>
+            </div>
+            <div>
+              <p class="text-sm text-primaryLight">Fecha de Predicción</p>
+              <p id="fechaResult" class="font-medium text-primary">--</p>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <div class="bg-green-100 p-2 rounded-full mr-3">
+              <i class="fas fa-bed text-green-600"></i>
+            </div>
+            <div>
+              <p class="text-sm text-primaryLight">Ocupación Estimada</p>
+              <p id="occupancyResult" class="text-3xl font-bold text-green-600">--</p>
+            </div>
+          </div>
+          <div id="recommendBox" class="mt-3 pt-3 border-t border-primaryLight rounded-lg p-4 hidden">
+            <p id="recommendationText" class="text-base font-medium">Recomendaciones aparecerán aquí según tu pronóstico...</p>
+          </div>
+            <p id="disclaimer" class="text-xs text-primaryLight italic mt-2 hidden">
+            *Las predicciones generadas por este modelo son estimaciones basadas en datos históricos y variables conocidas; no constituyen una garantía de ocupación futura. Se recomienda utilizarlas como referencia para la toma de decisiones y complementarlas con el análisis de indicadores adicionales y el contexto operativo actual.
+            </p>
+        </div>
+        <div class="text-center mt-6">
+          <button
+            id="resetForm"
+            class="text-brand hover:text-brandDark font-medium flex items-center justify-center mx-auto"
+          >
+            <i class="fas fa-redo mr-2"></i> Nueva Predicción
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const seriesData = {{ series_data|tojson }};
+      const ctx = document.getElementById("ocupancyChart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          datasets: [
+            {
+              label: "Entrenamiento",
+              data: seriesData.training,
+              borderColor: "#EF4444",
+              backgroundColor: "transparent",
+              borderWidth: 2,
+              tension: 0.2,
+              hidden: true
+            },
+            {
+              label: "Real",
+              data: seriesData.real,
+              borderColor: "#4ADE80",
+              backgroundColor: "transparent",
+              borderWidth: 2,
+              tension: 0.2
+            },
+            {
+              label: "Predicho",
+              data: seriesData.predicho,
+              borderColor: "#3B82F6",
+              backgroundColor: "transparent",
+              borderWidth: 2,
+              tension: 0.2,
+              hidden: true
+            },
+            {
+              label: "Forecast",
+              data: seriesData.forecast,
+              borderColor: "#FACC15",
+              backgroundColor: "transparent",
+              borderDash: [6, 4],
+              borderWidth: 2,
+              tension: 0.2
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: "time",
+              time: {
+                parser: "yyyy-MM-dd",
+                unit: "day",
+                displayFormats: {
+                  day: "MMM dd"
+                },
+              },
+              ticks: {
+                color: "#E5E7EB",
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 12,
+              },
+              grid: {
+                color: "rgba(229,231,235,0.1)"
+              },
+            },
+            y: {
+              ticks: {
+                color: "#E5E7EB"
+              },
+              grid: {
+                color: "rgba(229,231,235,0.1)"
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: "#F9FAFB",
+                boxWidth: 12,
+                boxHeight: 12
+              },
+            },
+            tooltip: {
+              titleColor: "#F9FAFB",
+              bodyColor: "#F9FAFB",
+              backgroundColor: "rgba(31,41,55,0.8)",
+            },
+          },
+          layout: {
+            padding: 10,
+          },
+        },
+      });
+      const form = document.getElementById("predict-form");
+      const resultContainer = document.getElementById("resultContainer");
+      const resetBtn = document.getElementById("resetForm");
+      const cardsContainer = document.getElementById("cardsContainer");
+      function centrarSoloPredictCard() {
+        cardsContainer.classList.remove("lg:grid-cols-2");
+        cardsContainer.classList.add("lg:grid-cols-1", "justify-items-center");
+      }
+      function restaurarGridDosColumnas() {
+        cardsContainer.classList.remove("lg:grid-cols-1", "justify-items-center");
+        cardsContainer.classList.add("lg:grid-cols-2");
+      }
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const fechaInput = document.getElementById("fecha").value;
+        const lag1 = parseInt(document.getElementById("lag_1").value, 10);
+        const lag7 = parseInt(document.getElementById("lag_7").value, 10);
+        const lag14 = parseInt(document.getElementById("lag_14").value, 10);
+        const rm7 = parseFloat(document.getElementById("rolling_mean_7").value);
+        const payload = {
+          fecha: fechaInput,
+          lag_1: lag1,
+          lag_7: lag7,
+          lag_14: lag14,
+          rolling_mean_7: rm7,
+        };
+        try {
+          const response = await fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const rawText = await response.text();
+          let jsonBody;
+          try {
+            jsonBody = JSON.parse(rawText);
+          } catch {
+            throw new Error(`Respuesta no JSON del servidor:\n${rawText}`);
+          }
+          if (!response.ok) {
+            const errorMsg = jsonBody.error || JSON.stringify(jsonBody);
+            throw new Error(`Status ${response.status}: ${errorMsg}`);
+          }
+          if (typeof jsonBody === "string") {
+            jsonBody = JSON.parse(jsonBody);
+          }
+          if (Array.isArray(jsonBody.predictions)) {
+            const predValue = jsonBody.predictions[0];
+            const [año, mes, día] = fechaInput.split("-").map(Number);
+            const dateObj = new Date(año, mes - 1, día);
+            const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            let fechaFormateada = new Intl.DateTimeFormat('es-ES', opciones).format(dateObj);
+            fechaFormateada = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
+            document.getElementById("fechaResult").textContent = fechaFormateada;
+            document.getElementById("occupancyResult").textContent = `${predValue.toFixed(0)} personas`;
+            const recommendBox = document.getElementById("recommendBox");
+            recommendBox.classList.remove(
+              'bg-red-100', 'border-red-500', 'text-red-800',
+              'bg-green-100', 'border-green-500', 'text-green-800',
+              'bg-yellow-100', 'border-yellow-500', 'text-yellow-800'
+            );
+            resultContainer.classList.remove("hidden");
+            restaurarGridDosColumnas();
+            recommendBox.classList.remove('hidden');
+            let recText = '';
+            if (predValue > 660) {
+              recText = '❗ Alta ocupación proyectada. Ajusta tarifas y prepara personal.';
+              recommendBox.classList.add('bg-red-100', 'border', 'border-red-500', 'text-red-800');
+            } else if (predValue <= 660 && predValue > 500) {
+              recText = '✅ Ocupación saludable. Mantén tu estrategia y monitorea el ritmo de reservas.';
+              recommendBox.classList.add('bg-green-100', 'border', 'border-green-500', 'text-green-800');
+            } else {
+              recText = '⚠️ Baja ocupación esperada. Considera promociones o paquetes especiales.';
+              recommendBox.classList.add('bg-yellow-100', 'border', 'border-yellow-500', 'text-yellow-800');
+            }
+            document.getElementById("recommendationText").textContent = recText;
+            document.getElementById("disclaimer").classList.remove('hidden');
+            resultContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else if (jsonBody.error) {
+            alert(`Error del servidor: ${jsonBody.error}`);
+          } else {
+            console.error("Respuesta inesperada:", jsonBody);
+            alert("Respuesta inesperada del servidor. Revisa la consola.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert(`Error al solicitar predicción: ${err.message}`);
+        }
+      });
+      resetBtn.addEventListener("click", function () {
+        resultContainer.classList.add("hidden");
+        centrarSoloPredictCard();
+        const recommendBox = document.getElementById("recommendBox");
+        const disclaimer = document.getElementById("disclaimer");
+        recommendBox.classList.add("hidden");
+        disclaimer.classList.add("hidden");
+        form.reset();
+        form.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      if (resultContainer.classList.contains("hidden")) {
+        centrarSoloPredictCard();
+      }
+    });
+  </script>
+{% endblock %}

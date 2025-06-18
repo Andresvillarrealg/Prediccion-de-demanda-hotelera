@@ -1,0 +1,8 @@
+Flask>=2.3
+pandas
+python-dotenv
+flask-caching
+azure-storage-blob
+requests
+numpy
+holidays
